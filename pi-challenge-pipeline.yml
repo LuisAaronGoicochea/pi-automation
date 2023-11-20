@@ -1,0 +1,50 @@
+trigger:
+  branches:
+    exclude:
+      - '*'
+
+schedules:
+  - cron: "0 5 * * 1"  # Ejecutar los lunes a las 5:00 AM
+    displayName: "Ejecutar los lunes a las 5:00 AM"
+    branches:
+      include:
+        - main  # Nombre de la rama a la que se aplicará el cron
+
+jobs:
+- job: ejecutar_proceso
+  pool:
+    vmImage: 'ubuntu-latest'
+
+  steps:
+  - script: |
+      # Coloca aquí tus comandos para ejecutar el proceso
+      echo "Ejecutando el proceso..."
+
+  - task: UseDotNet@2
+    displayName: 'Instalar .NET Core'
+    inputs:
+      packageType: 'sdk'
+      version: '3.1.x'
+
+  - task: AzureDatabricksNotebook@0
+    displayName: 'Ejecutar cuaderno de Databricks'
+    inputs:
+      notebookPath: '/Users/20163134@o365.ulima.edu.pe/Challenge_PI_Consulting'
+      notebookParameters: ''
+      existingClusterId: '1117-014037-9ps5wggd'
+      failTaskOnValidationErrors: true
+      jobIdVariable: 'DATABRICKS_JOB_ID'
+
+  - task: SqlAzureDacpacDeployment@1
+    displayName: 'Ejecutar Stored Procedure de SQL Server'
+    inputs:
+      azureSubscription: 'c121ecca-b5bd-4e11-82df-c1dd9a6b5ddf'
+      serverName: 'sqlconnectvm-1.eastus2.cloudapp.azure.com'
+      authenticationType: 'server'
+      sqlUsername: 'sa'
+      sqlPassword: 'Pi$Challenge$2023'
+      deployType: 'DacpacTask'
+      deploymentAction: 'ExecuteSqlCommand'
+      sqlFile: '/Ruta/Al/Script/Almacenado.sql'
+      additionalArguments: '- encrypt=true;trustServerCertificate=true;'
+      failOnSqlError: true
