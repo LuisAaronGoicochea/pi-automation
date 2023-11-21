@@ -1,0 +1,9 @@
+{
+	"name": "datafactory-pi-challenge",
+	"location": "eastus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "9feebabd-5eec-406c-bf11-1be687632f41",
+		"tenantId": "e46d3862-8595-45d1-9b69-630798d8902d"
+	}
+}
