@@ -1,0 +1,24 @@
+{
+	"name": "piChallengeTrigger",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pipelinePiChallenge",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-11-21T05:00:00",
+				"timeZone": "SA Pacific Standard Time"
+			}
+		}
+	}
+}

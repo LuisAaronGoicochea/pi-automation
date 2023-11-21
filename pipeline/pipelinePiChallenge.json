@@ -3,9 +3,16 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Stored procedure1",
+				"name": "Verified Duplicate Value into MSSQL Table",
 				"type": "SqlServerStoredProcedure",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Insert CSV rows into MSSQL Table",
+						"dependencyConditions": [
+							"Skipped"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.05:05:00",
 					"retry": 0,
@@ -23,11 +30,11 @@
 				}
 			},
 			{
-				"name": "Notebook1",
+				"name": "Insert CSV rows into MSSQL Table",
 				"type": "DatabricksNotebook",
 				"dependsOn": [],
 				"policy": {
-					"timeout": "0.12:00:00",
+					"timeout": "0.05:00:00",
 					"retry": 0,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
@@ -35,7 +42,61 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Users/20163134@o365.ulima.edu.pe/Challenge_PI_Consulting"
+					"notebookPath": "/Users/20163134@o365.ulima.edu.pe/Challenge_PI_Consulting",
+					"baseParameters": {
+						"v_mount_point": {
+							"value": "@pipeline().parameters.v_mount_point",
+							"type": "Expression"
+						},
+						"v_account_key": {
+							"value": "@pipeline().parameters.v_account_key",
+							"type": "Expression"
+						},
+						"v_source": {
+							"value": "@pipeline().parameters.v_source",
+							"type": "Expression"
+						},
+						"v_account_name": {
+							"value": "@pipeline().parameters.v_account_name",
+							"type": "Expression"
+						},
+						"v_file_path": {
+							"value": "@pipeline().parameters.v_file_path",
+							"type": "Expression"
+						},
+						"v_driver": {
+							"value": "@pipeline().parameters.v_driver",
+							"type": "Expression"
+						},
+						"v_db_server": {
+							"value": "@pipeline().parameters.v_db_server",
+							"type": "Expression"
+						},
+						"v_db_name": {
+							"value": "@pipeline().parameters.v_db_name",
+							"type": "Expression"
+						},
+						"v_user": {
+							"value": "@pipeline().parameters.v_user",
+							"type": "Expression"
+						},
+						"v_password": {
+							"value": "@pipeline().parameters.v_password",
+							"type": "Expression"
+						},
+						"v_dbtable": {
+							"value": "@pipeline().parameters.v_dbtable",
+							"type": "Expression"
+						},
+						"v_mode": {
+							"value": "@pipeline().parameters.v_mode",
+							"type": "Expression"
+						},
+						"v_format": {
+							"value": "@pipeline().parameters.v_format",
+							"type": "Expression"
+						}
+					}
 				},
 				"linkedServiceName": {
 					"referenceName": "AzureDatabricksPiChallenge",
@@ -43,6 +104,60 @@
 				}
 			}
 		],
+		"parameters": {
+			"v_mount_point": {
+				"type": "string",
+				"defaultValue": "/mnt/pi-consulting"
+			},
+			"v_account_key": {
+				"type": "string",
+				"defaultValue": "2tHYCEZdHKNkfh8RrE8WDrpjBBCyOWLziM6mDHeEjWjDHJm+Cj/3f9IG50vOWoYN64QPehfbxSbp+AStxtb10Q=="
+			},
+			"v_source": {
+				"type": "string",
+				"defaultValue": "wasbs://pi-consulting@azdatalaketestingv2.blob.core.windows.net"
+			},
+			"v_account_name": {
+				"type": "string",
+				"defaultValue": "fs.azure.account.key.azdatalaketestingv2.blob.core.windows.net"
+			},
+			"v_file_path": {
+				"type": "string",
+				"defaultValue": "/mnt/pi-consulting/challenge/landing/nuevas_filas.csv"
+			},
+			"v_driver": {
+				"type": "string",
+				"defaultValue": "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+			},
+			"v_db_server": {
+				"type": "string",
+				"defaultValue": "sqlconnectvm-1.eastus2.cloudapp.azure.com"
+			},
+			"v_db_name": {
+				"type": "string",
+				"defaultValue": "Testing_ETL"
+			},
+			"v_user": {
+				"type": "string",
+				"defaultValue": "sa"
+			},
+			"v_password": {
+				"type": "string",
+				"defaultValue": "Pi$Challenge$2023"
+			},
+			"v_dbtable": {
+				"type": "string",
+				"defaultValue": "dbo.Unificado"
+			},
+			"v_mode": {
+				"type": "string",
+				"defaultValue": "append"
+			},
+			"v_format": {
+				"type": "string",
+				"defaultValue": "jdbc"
+			}
+		},
 		"annotations": []
 	}
 }
