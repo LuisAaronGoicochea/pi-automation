@@ -1,0 +1,281 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "datafactory-pi-challenge"
+		},
+		"AzureDatabricksPiChallenge_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'AzureDatabricksPiChallenge'"
+		},
+		"sqlVirtualMachinePiChallenge_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'sqlVirtualMachinePiChallenge'"
+		},
+		"AzureDatabricksPiChallenge_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "1117-014037-9ps5wggd"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDatabricksPiChallenge')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-1687503333705894.14.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDatabricksPiChallenge_accessToken')]"
+					},
+					"existingClusterId": "[parameters('AzureDatabricksPiChallenge_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sqlVirtualMachinePiChallenge')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('sqlVirtualMachinePiChallenge_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/IR-selfhost')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/integrationRuntime1-test')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipelinePiChallenge')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Verified Duplicate Value into MSSQL Table",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Insert CSV rows into MSSQL Table",
+								"dependencyConditions": [
+									"Skipped"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.05:05:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[HandleDuplicatesInUnificado]"
+						},
+						"linkedServiceName": {
+							"referenceName": "sqlVirtualMachinePiChallenge",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Insert CSV rows into MSSQL Table",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.05:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/20163134@o365.ulima.edu.pe/Challenge_PI_Consulting",
+							"baseParameters": {
+								"v_mount_point": {
+									"value": "@pipeline().parameters.v_mount_point",
+									"type": "Expression"
+								},
+								"v_account_key": {
+									"value": "@pipeline().parameters.v_account_key",
+									"type": "Expression"
+								},
+								"v_source": {
+									"value": "@pipeline().parameters.v_source",
+									"type": "Expression"
+								},
+								"v_account_name": {
+									"value": "@pipeline().parameters.v_account_name",
+									"type": "Expression"
+								},
+								"v_file_path": {
+									"value": "@pipeline().parameters.v_file_path",
+									"type": "Expression"
+								},
+								"v_driver": {
+									"value": "@pipeline().parameters.v_driver",
+									"type": "Expression"
+								},
+								"v_db_server": {
+									"value": "@pipeline().parameters.v_db_server",
+									"type": "Expression"
+								},
+								"v_db_name": {
+									"value": "@pipeline().parameters.v_db_name",
+									"type": "Expression"
+								},
+								"v_user": {
+									"value": "@pipeline().parameters.v_user",
+									"type": "Expression"
+								},
+								"v_password": {
+									"value": "@pipeline().parameters.v_password",
+									"type": "Expression"
+								},
+								"v_dbtable": {
+									"value": "@pipeline().parameters.v_dbtable",
+									"type": "Expression"
+								},
+								"v_mode": {
+									"value": "@pipeline().parameters.v_mode",
+									"type": "Expression"
+								},
+								"v_format": {
+									"value": "@pipeline().parameters.v_format",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureDatabricksPiChallenge",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"v_mount_point": {
+						"type": "string",
+						"defaultValue": "/mnt/pi-consulting"
+					},
+					"v_account_key": {
+						"type": "string",
+						"defaultValue": "2tHYCEZdHKNkfh8RrE8WDrpjBBCyOWLziM6mDHeEjWjDHJm+Cj/3f9IG50vOWoYN64QPehfbxSbp+AStxtb10Q=="
+					},
+					"v_source": {
+						"type": "string",
+						"defaultValue": "wasbs://pi-consulting@azdatalaketestingv2.blob.core.windows.net"
+					},
+					"v_account_name": {
+						"type": "string",
+						"defaultValue": "fs.azure.account.key.azdatalaketestingv2.blob.core.windows.net"
+					},
+					"v_file_path": {
+						"type": "string",
+						"defaultValue": "/mnt/pi-consulting/challenge/landing/nuevas_filas.csv"
+					},
+					"v_driver": {
+						"type": "string",
+						"defaultValue": "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+					},
+					"v_db_server": {
+						"type": "string",
+						"defaultValue": "sqlconnectvm-1.eastus2.cloudapp.azure.com"
+					},
+					"v_db_name": {
+						"type": "string",
+						"defaultValue": "Testing_ETL"
+					},
+					"v_user": {
+						"type": "string",
+						"defaultValue": "sa"
+					},
+					"v_password": {
+						"type": "string",
+						"defaultValue": "Pi$Challenge$2023"
+					},
+					"v_dbtable": {
+						"type": "string",
+						"defaultValue": "dbo.Unificado"
+					},
+					"v_mode": {
+						"type": "string",
+						"defaultValue": "append"
+					},
+					"v_format": {
+						"type": "string",
+						"defaultValue": "jdbc"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/sqlVirtualMachinePiChallenge')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricksPiChallenge')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/piChallengeTrigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pipelinePiChallenge",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2023-11-21T05:00:00",
+						"timeZone": "SA Pacific Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pipelinePiChallenge')]"
+			]
+		}
+	]
+}
