@@ -7,13 +7,40 @@
 				"type": "SqlServerStoredProcedure",
 				"dependsOn": [],
 				"policy": {
+					"timeout": "0.05:05:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[HandleDuplicatesInUnificado]"
+				},
+				"linkedServiceName": {
+					"referenceName": "sqlVirtualMachinePiChallenge",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Notebook1",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/20163134@o365.ulima.edu.pe/Challenge_PI_Consulting"
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureDatabricksPiChallenge",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"annotations": []
