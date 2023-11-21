@@ -88,7 +88,7 @@
 							{
 								"activity": "Insert CSV rows into MSSQL Table",
 								"dependencyConditions": [
-									"Skipped"
+									"Succeeded"
 								]
 							}
 						],
@@ -239,6 +239,9 @@
 						"type": "string",
 						"defaultValue": "jdbc"
 					}
+				},
+				"folder": {
+					"name": "pipelineMaster"
 				},
 				"annotations": []
 			},
